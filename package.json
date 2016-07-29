@@ -1,0 +1,24 @@
+{
+  "name": "compute-distance",
+  "version": "0.0.1",
+  "author": "Daniel Sauble",
+  "description": "Find the distance represented by a set of points, filter if necessary",
+  "keywords": [
+    "geolocation",
+    "track",
+    "Google Maps",
+    "distance"
+  ],
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "browserify": "*",
+    "grunt": "*",
+    "grunt-browserify": "*",
+    "grunt-contrib-jshint": "*",
+    "grunt-contrib-qunit": "*"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/djsauble/compute-distance.git"
+  }
+}
