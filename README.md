@@ -39,7 +39,7 @@ using the directions on [this page](https://developers.google.com/maps/documenta
 
 To filter a set of data before computing distance, use the following code:
 
-    var Distance = require(`compute-distance`);
+    var Distance = require('compute-distance');
 
     var filtered = Distance.filter(data); // data is an array of coordinates
     var points = Distance.mapToGoogle(filtered);
@@ -47,7 +47,7 @@ To filter a set of data before computing distance, use the following code:
 
 To compute distance on a raw dataset, without filtering, do the following:
 
-    var Distance = require(`compute-distance`);
+    var Distance = require('compute-distance');
 
     var points = Distance.mapToGoogle(data);
     var distance = Distance.computeDistance(points);
