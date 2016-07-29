@@ -2,7 +2,7 @@ Find the distance associated with an array of geospatial coordinates.
 
 There are three methods associated with this library.
 
-*`filter(data)`*
+**`filter(data)`**
 
 A filter designed to smooth abberations from a GPS trace. It discards
 coordinates with accuracy less than 20 meters and coordinates that are more than
@@ -16,7 +16,7 @@ Each object in the array should have the following attributes set:
       accuracy: Double // optional
     }
 
-*`mapToGoogle(data)`*
+**`mapToGoogle(data)`**
 
 Take an array of coordinates and convert them to google.maps.LatLng objects.
 
@@ -27,7 +27,7 @@ Each object in the array should have the following attributes set:
       latitude: Double
     }
 
-*`computeDistance(data)`*
+**`computeDistance(data)`**
 
 Take an array of google.maps.LatLng objects and compute the distance they
 represent in meters.
