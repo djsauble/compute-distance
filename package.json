@@ -22,6 +22,6 @@
     "url": "git+ssh://git@github.com/djsauble/compute-distance.git"
   },
   "dependencies": {
-    "google-maps": "^3.2.1"
+    "sgeo": "^0.0.5"
   }
 }
