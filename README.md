@@ -1,10 +1,8 @@
 Find the distance associated with an array of geospatial coordinates.
 
-There are three methods associated with this library. Each takes an `options`
-param, where you can pass your Google Maps API object (using [this
-library](https://www.npmjs.com/package/google-maps), for example).
+There are three methods associated with this library:
 
-**filter(data, options)**
+**filter(data)**
 
 A filter designed to smooth abberations from a GPS trace. It discards
 coordinates with accuracy less than 20 meters and coordinates that are more than
@@ -18,9 +16,10 @@ Each object in the array should have the following attributes set:
       accuracy: Double // optional
     }
 
-**mapToGoogle(data, options)**
+**map(data)**
 
-Take an array of coordinates and convert them to google.maps.LatLng objects.
+Take an array of coordinates and convert them to
+[sgeo](https://www.npmjs.com/package/sgeo) objects.
 
 Each object in the array should have the following attributes set:
 
@@ -29,29 +28,20 @@ Each object in the array should have the following attributes set:
       latitude: Double
     }
 
-**computeDistance(data, options)**
+**computeDistance(data)**
 
-Take an array of `google.maps.LatLng` objects and compute the distance they
-represent in meters.
+Take an array of [sgeo](https://www.npmjs.com/package/sgeo) objects and compute
+the distance they represent in meters.
 
 ## Usage
-
-This library depends on the Google Maps Javascript API, so be sure to include it
-using the directions on [this page](https://developers.google.com/maps/documentation/javascript/).
 
 To filter a set of data before computing distance, use the following code:
 
     var Distance = require('compute-distance');
-    var GoogleMapsLoader = require('google-maps');
-    GoogleMapsLoader.KEY = 'your-api-key';
-    GoogleMapsLoader.LIBRARIES = ['geometry'];
 
-    GoogleMapsLoader.load(function(google) {
-      var options = { google: google };
-      var filtered = Distance.filter(data, options); // data is an array of coordinates
-      var points = Distance.mapToGoogle(filtered, options);
-      var distance = Distance.computeDistance(points, options);
-    };
+    var filtered = Distance.filter(data); // data is an array of coordinates
+    var points = Distance.map(filtered);
+    var distance = Distance.computeDistance(points);
 
 To compute distance on a raw dataset, without filtering, pass your raw data to
-`mapToGoogle` directly, instead of passing it through `filter` first.
+`map` directly, instead of passing it through `filter` first.

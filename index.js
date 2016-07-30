@@ -63,6 +63,6 @@ var computeDistance = function (coords) {
 
 module.exports = {
   filter: defaultFilter,
-  mapToGoogle: getCoordinates,
-  computeDistance: computeDistance
+  map: getCoordinates,
+  compute: computeDistance
 };

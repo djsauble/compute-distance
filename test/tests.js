@@ -3,11 +3,11 @@ var Distance = require('../index');
 QUnit.test( 'Filter a GPS track to ensure the filter works', function(assert) {
   var filtered = Distance.filter(data);
 
-  var raw = Distance.mapToGoogle(data);
-  var civilized = Distance.mapToGoogle(filtered);
+  var raw = Distance.map(data);
+  var civilized = Distance.map(filtered);
 
-  var rawDistance = Distance.computeDistance(raw);
-  var filteredDistance = Distance.computeDistance(civilized);
+  var rawDistance = Distance.compute(raw);
+  var filteredDistance = Distance.compute(civilized);
 
   assert.equal(rawDistance, 103.89499999999998, 'Passed!');
   assert.equal(filteredDistance, 97.44399999999999, 'Passed!');
