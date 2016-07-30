@@ -1,16 +1,27 @@
 var Distance = require('../index');
+var GoogleMapsLoader = require('google-maps');
+GoogleMapsLoader.KEY = 'AIzaSyDrMrHDCL33b4PkB0p5SZlCR7mwc7Yp7SA';
+GoogleMapsLoader.LIBRARIES = ['geometry'];
 
 QUnit.test( 'Filter a GPS track to ensure the filter works', function(assert) {
-  var filtered = Distance.filter(data);
+  var done = assert.async();
 
-  var raw = Distance.mapToGoogle(data);
-  var civilized = Distance.mapToGoogle(filtered);
+  GoogleMapsLoader.load(function(google) {
+    var options = { google: google };
 
-  var rawDistance = Distance.computeDistance(raw);
-  var filteredDistance = Distance.computeDistance(civilized);
+    var filtered = Distance.filter(data, options);
 
-  assert.equal(104.01168761662434, rawDistance, 'Passed!');
-  assert.equal(97.55330283703395, filteredDistance, 'Passed!');
+    var raw = Distance.mapToGoogle(data, options);
+    var civilized = Distance.mapToGoogle(filtered, options);
+
+    var rawDistance = Distance.computeDistance(raw, options);
+    var filteredDistance = Distance.computeDistance(civilized, options);
+
+    assert.equal(104.01168761662434, rawDistance, 'Passed!');
+    assert.equal(97.55330283703395, filteredDistance, 'Passed!');
+
+    done();
+  });
 });
 
 var data = [

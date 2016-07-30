@@ -1,6 +1,6 @@
 {
   "name": "compute-distance",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "author": "Daniel Sauble",
   "description": "Find the distance represented by a set of points, filter if necessary",
   "keywords": [
@@ -20,5 +20,8 @@
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com/djsauble/compute-distance.git"
+  },
+  "dependencies": {
+    "google-maps": "^3.2.1"
   }
 }

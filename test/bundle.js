@@ -1,10 +1,30 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+(function (global){
+// Get the Google API object, if it exists
+var getGoogleAPI = function (options) {
+  if (options && options.google) {
+    return options.google;
+  }
+  else if (global && global.google) {
+    return global.google;
+  }
+  else if (window && window.google) {
+    return window.google;
+  }
+  else {
+    console.log("Google API object does not exist");
+    console.trace();
+  }
+
+  return undefined;
+};
 
 // Smooth the run (e.g. ignore bouncing GPS tracks)
-var defaultFilter = function (data) {
+var defaultFilter = function (data, options) {
   var accurate = [],
       filtered = [],
-      maxDistance = 20; // Meters
+      maxDistance = 20, // Meters
+      google = getGoogleAPI(options);
 
   // Filter out inaccurate points
   data.forEach(function(e) {
@@ -44,8 +64,9 @@ var defaultFilter = function (data) {
 };
 
 // Get an array of coordinates
-var getCoordinates = function (data) {
-  var coords = [];
+var getCoordinates = function (data, options) {
+  var coords = [],
+      google = getGoogleAPI(options);
 
   for (var i in data) {
     coords.push(new google.maps.LatLng({
@@ -58,7 +79,9 @@ var getCoordinates = function (data) {
 };
 
 // Get the distance represented by a set of coordinates (meters)
-var computeDistance = function (coords) {
+var computeDistance = function (coords, options) {
+  var google = getGoogleAPI(options);
+
   var distance = 0;
   for (var i = 0; i < coords.length - 1; ++i) {
     distance += google.maps.geometry.spherical.computeDistanceBetween(coords[i], coords[i+1]);
@@ -72,20 +95,253 @@ module.exports = {
   computeDistance: computeDistance
 };
 
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{}],2:[function(require,module,exports){
+(function(root, factory) {
+
+	if (root === null) {
+		throw new Error('Google-maps package can be used only in browser');
+	}
+
+	if (typeof define === 'function' && define.amd) {
+		define(factory);
+	} else if (typeof exports === 'object') {
+		module.exports = factory();
+	} else {
+		root.GoogleMapsLoader = factory();
+	}
+
+})(typeof window !== 'undefined' ? window : null, function() {
+
+
+	'use strict';
+
+
+	var googleVersion = '3.18';
+
+	var script = null;
+
+	var google = null;
+
+	var loading = false;
+
+	var callbacks = [];
+
+	var onLoadEvents = [];
+
+	var originalCreateLoaderMethod = null;
+
+
+	var GoogleMapsLoader = {};
+
+
+	GoogleMapsLoader.URL = 'https://maps.googleapis.com/maps/api/js';
+
+	GoogleMapsLoader.KEY = null;
+
+	GoogleMapsLoader.LIBRARIES = [];
+
+	GoogleMapsLoader.CLIENT = null;
+
+	GoogleMapsLoader.CHANNEL = null;
+
+	GoogleMapsLoader.LANGUAGE = null;
+
+	GoogleMapsLoader.REGION = null;
+
+	GoogleMapsLoader.VERSION = googleVersion;
+
+	GoogleMapsLoader.WINDOW_CALLBACK_NAME = '__google_maps_api_provider_initializator__';
+
+
+	GoogleMapsLoader._googleMockApiObject = {};
+
+
+	GoogleMapsLoader.load = function(fn) {
+		if (google === null) {
+			if (loading === true) {
+				if (fn) {
+					callbacks.push(fn);
+				}
+			} else {
+				loading = true;
+
+				window[GoogleMapsLoader.WINDOW_CALLBACK_NAME] = function() {
+					ready(fn);
+				};
+
+				GoogleMapsLoader.createLoader();
+			}
+		} else if (fn) {
+			fn(google);
+		}
+	};
+
+
+	GoogleMapsLoader.createLoader = function() {
+		script = document.createElement('script');
+		script.type = 'text/javascript';
+		script.src = GoogleMapsLoader.createUrl();
+
+		document.body.appendChild(script);
+	};
+
+
+	GoogleMapsLoader.isLoaded = function() {
+		return google !== null;
+	};
+
+
+	GoogleMapsLoader.createUrl = function() {
+		var url = GoogleMapsLoader.URL;
+
+		url += '?callback=' + GoogleMapsLoader.WINDOW_CALLBACK_NAME;
+
+		if (GoogleMapsLoader.KEY) {
+			url += '&key=' + GoogleMapsLoader.KEY;
+		}
+
+		if (GoogleMapsLoader.LIBRARIES.length > 0) {
+			url += '&libraries=' + GoogleMapsLoader.LIBRARIES.join(',');
+		}
+
+		if (GoogleMapsLoader.CLIENT) {
+			url += '&client=' + GoogleMapsLoader.CLIENT + '&v=' + GoogleMapsLoader.VERSION;
+		}
+
+		if (GoogleMapsLoader.CHANNEL) {
+			url += '&channel=' + GoogleMapsLoader.CHANNEL;
+		}
+
+		if (GoogleMapsLoader.LANGUAGE) {
+			url += '&language=' + GoogleMapsLoader.LANGUAGE;
+		}
+
+		if (GoogleMapsLoader.REGION) {
+			url += '&region=' + GoogleMapsLoader.REGION;
+		}
+
+		return url;
+	};
+
+
+	GoogleMapsLoader.release = function(fn) {
+		var release = function() {
+			GoogleMapsLoader.KEY = null;
+			GoogleMapsLoader.LIBRARIES = [];
+			GoogleMapsLoader.CLIENT = null;
+			GoogleMapsLoader.CHANNEL = null;
+			GoogleMapsLoader.LANGUAGE = null;
+			GoogleMapsLoader.REGION = null;
+			GoogleMapsLoader.VERSION = googleVersion;
+
+			google = null;
+			loading = false;
+			callbacks = [];
+			onLoadEvents = [];
+
+			if (typeof window.google !== 'undefined') {
+				delete window.google;
+			}
+
+			if (typeof window[GoogleMapsLoader.WINDOW_CALLBACK_NAME] !== 'undefined') {
+				delete window[GoogleMapsLoader.WINDOW_CALLBACK_NAME];
+			}
+
+			if (originalCreateLoaderMethod !== null) {
+				GoogleMapsLoader.createLoader = originalCreateLoaderMethod;
+				originalCreateLoaderMethod = null;
+			}
+
+			if (script !== null) {
+				script.parentElement.removeChild(script);
+				script = null;
+			}
+
+			if (fn) {
+				fn();
+			}
+		};
+
+		if (loading) {
+			GoogleMapsLoader.load(function() {
+				release();
+			});
+		} else {
+			release();
+		}
+	};
+
+
+	GoogleMapsLoader.onLoad = function(fn) {
+		onLoadEvents.push(fn);
+	};
+
+
+	GoogleMapsLoader.makeMock = function() {
+		originalCreateLoaderMethod = GoogleMapsLoader.createLoader;
+
+		GoogleMapsLoader.createLoader = function() {
+			window.google = GoogleMapsLoader._googleMockApiObject;
+			window[GoogleMapsLoader.WINDOW_CALLBACK_NAME]();
+		};
+	};
+
+
+	var ready = function(fn) {
+		var i;
+
+		loading = false;
+
+		if (google === null) {
+			google = window.google;
+		}
+
+		for (i = 0; i < onLoadEvents.length; i++) {
+			onLoadEvents[i](google);
+		}
+
+		if (fn) {
+			fn(google);
+		}
+
+		for (i = 0; i < callbacks.length; i++) {
+			callbacks[i](google);
+		}
+
+		callbacks = [];
+	};
+
+
+	return GoogleMapsLoader;
+
+});
+
+},{}],3:[function(require,module,exports){
 var Distance = require('../index');
+var GoogleMapsLoader = require('google-maps');
+GoogleMapsLoader.KEY = 'AIzaSyDrMrHDCL33b4PkB0p5SZlCR7mwc7Yp7SA';
+GoogleMapsLoader.LIBRARIES = ['geometry'];
 
 QUnit.test( 'Filter a GPS track to ensure the filter works', function(assert) {
-  var filtered = Distance.filter(data);
+  var done = assert.async();
 
-  var raw = Distance.mapToGoogle(data);
-  var civilized = Distance.mapToGoogle(filtered);
+  GoogleMapsLoader.load(function(google) {
+    var options = { google: google };
 
-  var rawDistance = Distance.computeDistance(raw);
-  var filteredDistance = Distance.computeDistance(civilized);
+    var filtered = Distance.filter(data, options);
 
-  assert.equal(104.01168761662434, rawDistance, 'Passed!');
-  assert.equal(97.55330283703395, filteredDistance, 'Passed!');
+    var raw = Distance.mapToGoogle(data, options);
+    var civilized = Distance.mapToGoogle(filtered, options);
+
+    var rawDistance = Distance.computeDistance(raw, options);
+    var filteredDistance = Distance.computeDistance(civilized, options);
+
+    assert.equal(104.01168761662434, rawDistance, 'Passed!');
+    assert.equal(97.55330283703395, filteredDistance, 'Passed!');
+
+    done();
+  });
 });
 
 var data = [
@@ -315,4 +571,4 @@ var data = [
   }
 ];
 
-},{"../index":1}]},{},[2]);
+},{"../index":1,"google-maps":2}]},{},[3]);
