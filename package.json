@@ -1,6 +1,6 @@
 {
   "name": "compute-distance",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "author": "Daniel Sauble",
   "description": "Find the distance represented by a set of points, filter if necessary",
   "keywords": [
